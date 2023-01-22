@@ -1,11 +1,17 @@
 package main
 
 import (
+	"context"
+	"net/http"
+
+	"github.com/AlgernonGuo/tiktok-micro/internal/basic_services/biz/mw"
 	"github.com/AlgernonGuo/tiktok-micro/internal/basic_services/service"
+	"github.com/AlgernonGuo/tiktok-micro/internal/pkg/utils"
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
-func initRegister(h *server.Hertz) {
+func InitRegister(h *server.Hertz) {
 	//h.StaticFS("/static", &app.FS{Root: "./", GenerateIndexPages: true})
 	h.Static("/static", "./web/static")
 	RegisterGroupRoute(h)
@@ -13,11 +19,22 @@ func initRegister(h *server.Hertz) {
 
 // RegisterGroupRoute group route
 func RegisterGroupRoute(h *server.Hertz) {
-	// User group:
-	user := h.Group("/douyin/user")
+	root := h.Group("/douyin")
 	{
-		// loginEndpoint is a handler func
-		user.POST("/register", service.Register)
-		user.POST("/login", service.Login)
+		// User group:
+		user := root.Group("/user")
+		{
+			user.POST("/register", func(c context.Context, ctx *app.RequestContext) {
+				// if register success then auto login
+				if err := service.Register(c, ctx); err != nil {
+					ctx.JSON(http.StatusOK, mw.UserLoginResponse{
+						Response: utils.Response{StatusCode: 400, StatusMsg: err.Error()},
+					})
+					return
+				}
+				mw.JwtMiddleware.LoginHandler(c, ctx)
+			})
+			user.POST("/login", mw.JwtMiddleware.LoginHandler)
+		}
 	}
 }

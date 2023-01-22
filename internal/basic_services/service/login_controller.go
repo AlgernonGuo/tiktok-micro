@@ -2,65 +2,54 @@ package service
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/AlgernonGuo/tiktok-micro/internal/basic_services/biz"
 	"github.com/AlgernonGuo/tiktok-micro/internal/basic_services/data"
-	log "github.com/sirupsen/logrus"
-
 	"github.com/AlgernonGuo/tiktok-micro/internal/pkg/utils"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
-
-type UserLoginResponse struct {
-	utils.Response
-	UserId int64  `json:"user_id,omitempty"`
-	Token  string `json:"token"`
-}
 
 type UserResponse struct {
 	utils.Response
 	User data.User `json:"user"`
 }
 
-func Login(ctx context.Context, c *app.RequestContext) {
-	username := c.Query("username")
-	password := c.Query("password")
-
-	token, user, err := biz.NewLoginService().Login(username, password)
-	if err != nil {
-		c.JSON(http.StatusOK, UserLoginResponse{
-			Response: utils.Response{StatusCode: 1, StatusMsg: "User not exist"},
-		})
-		return
+func Login(ctx context.Context, c *app.RequestContext) (interface{}, error) {
+	var login struct {
+		Username string `query:"username,required" vd:"(len($) > 0 && len($) < 128); msg:'Illegal format'"`
+		Password string `query:"password,required" vd:"(len($) > 0 && len($) < 128); msg:'Illegal format'"`
 	}
-	c.JSON(http.StatusOK, UserLoginResponse{
-		Response: utils.Response{StatusCode: 0},
-		UserId:   user.Id,
-		Token:    token,
-	})
+	if err := c.BindAndValidate(&login); err != nil {
+		return nil, err
+	}
+
+	user, err := biz.NewLoginService().Login(login.Username, utils.MD5(login.Password))
+	if err != nil {
+		return nil, err
+	}
+	c.Set("user_id", user.Id)
+	return user.Id, nil
 }
 
-func Register(ctx context.Context, c *app.RequestContext) {
-	username := c.Query("username")
-	password := c.Query("password")
-
+func Register(ctx context.Context, c *app.RequestContext) error {
+	var register struct {
+		Username string `query:"username,required" vd:"(len($) > 0 && len($) < 128); msg:'Illegal format'"`
+		Password string `query:"password,required" vd:"(len($) > 0 && len($) < 128); msg:'Illegal format'"`
+	}
+	if err := c.BindAndValidate(&register); err != nil {
+		hlog.CtxWarnf(ctx, "Bind failed, err: %v", err)
+		return err
+	}
 	user := &data.User{
 		Id:       utils.GenID(),
-		Name:     username,
-		Password: password,
+		Name:     register.Username,
+		Password: utils.MD5(register.Password),
 	}
-	token, err := biz.NewLoginService().Register(user)
+	err := biz.NewLoginService().Register(user)
 	if err != nil {
-		log.WithField("username", username).Errorf("GetUserByName failed, err: %v", err)
-		c.JSON(http.StatusOK, UserLoginResponse{
-			Response: utils.Response{StatusCode: 1, StatusMsg: err.Error()},
-		})
-		return
+		hlog.CtxWarnf(ctx, "Register failed")
+		return err
 	}
-	c.JSON(http.StatusOK, UserLoginResponse{
-		Response: utils.Response{StatusCode: 0},
-		UserId:   user.Id,
-		Token:    token,
-	})
+	return nil
 }
