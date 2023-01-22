@@ -10,11 +10,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
-type UserResponse struct {
-	utils.Response
-	User data.User `json:"user"`
-}
-
 func Login(ctx context.Context, c *app.RequestContext) (interface{}, error) {
 	var login struct {
 		Username string `query:"username,required" vd:"(len($) > 0 && len($) < 128); msg:'Illegal format'"`

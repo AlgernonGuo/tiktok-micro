@@ -19,12 +19,13 @@ func InitRegister(h *server.Hertz) {
 
 // RegisterGroupRoute group route
 func RegisterGroupRoute(h *server.Hertz) {
-	root := h.Group("/douyin")
+
+	// the service that does not need authentication
+	noAuth := h.Group("/douyin")
 	{
-		// User group:
-		user := root.Group("/user")
+		login := noAuth.Group("/user")
 		{
-			user.POST("/register", func(c context.Context, ctx *app.RequestContext) {
+			login.POST("/register", func(c context.Context, ctx *app.RequestContext) {
 				// if register success then auto login
 				if err := service.Register(c, ctx); err != nil {
 					ctx.JSON(http.StatusOK, mw.UserLoginResponse{
@@ -34,7 +35,16 @@ func RegisterGroupRoute(h *server.Hertz) {
 				}
 				mw.JwtMiddleware.LoginHandler(c, ctx)
 			})
-			user.POST("/login", mw.JwtMiddleware.LoginHandler)
+			login.POST("/login", mw.JwtMiddleware.LoginHandler)
+		}
+	}
+
+	// the service that need authentication
+	withAuth := h.Group("/douyin", mw.JwtMiddleware.MiddlewareFunc())
+	{
+		user := withAuth.Group("/user")
+		{
+			user.GET("/", service.GetUserInfo)
 		}
 	}
 }

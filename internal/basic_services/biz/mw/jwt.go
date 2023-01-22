@@ -7,7 +7,6 @@ import (
 
 	"github.com/AlgernonGuo/tiktok-micro/internal/basic_services/service"
 
-	module "github.com/AlgernonGuo/tiktok-micro/internal/basic_services/data"
 	utils2 "github.com/AlgernonGuo/tiktok-micro/internal/pkg/utils"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -33,7 +32,7 @@ func InitJwt() {
 		Key:           []byte("secret key"),
 		Timeout:       time.Hour * 24 * 15, // 15 days
 		MaxRefresh:    time.Hour * 24 * 15, // token can be refreshed for 15 days
-		TokenLookup:   "query: token",
+		TokenLookup:   "param: token, query: token",
 		TokenHeadName: "Bearer",
 		LoginResponse: func(ctx context.Context, c *app.RequestContext, code int, token string, expire time.Time) {
 			c.JSON(http.StatusOK, UserLoginResponse{
@@ -46,15 +45,19 @@ func InitJwt() {
 		IdentityKey:   IdentityKey,
 		IdentityHandler: func(ctx context.Context, c *app.RequestContext) interface{} {
 			claims := jwt.ExtractClaims(ctx, c)
-			return &module.User{
-				Name: claims[IdentityKey].(string),
-			}
+			// I don't know why the value here will become a float64 type
+			// I set the value to int64 type in the PayloadFunc function
+			// But when I get the value here, it becomes a float64 type, I will check the source code later
+			// After the conversion process there are no problems at the moment
+			return int64(claims[IdentityKey].(float64))
 		},
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			// data is string
-			if v, ok := data.(*module.User); ok {
+			// data is user id which type is int64
+			// This value comes from the return value of Authenticator call to the service.Login function
+			// We set the user id as the identity key in the token
+			if v, ok := data.(int64); ok {
 				return jwt.MapClaims{
-					IdentityKey: v.Name,
+					IdentityKey: v,
 				}
 			}
 			return jwt.MapClaims{}
