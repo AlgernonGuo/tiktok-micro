@@ -17,17 +17,6 @@ var (
 )
 
 func initHlog() error {
-	// TODO read config file to set log default output
-
-	// set log output to file and console
-	file, err := os.OpenFile(logPath+logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		logrus.Warning("Failed to log to file, using default stderr")
-	} else {
-		logrus.SetOutput(io.MultiWriter(file, os.Stdout))
-		hlog.SetOutput(io.MultiWriter(file, os.Stdout))
-	}
-
 	logger := hertzlogrus.NewLogger()
 	logger.Logger().SetFormatter(&logrus.TextFormatter{
 		ForceQuote:      true,                  //键值对加引号
@@ -41,18 +30,6 @@ func initHlog() error {
 }
 
 func initLogrus() error {
-
-	// TODO read config file to set log default output
-
-	// set log output to file and console
-	file, err := os.OpenFile(logPath+logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		logrus.Warning("Failed to log to file, using default stderr")
-	} else {
-		logrus.SetOutput(io.MultiWriter(file, os.Stdout))
-		hlog.SetOutput(io.MultiWriter(file, os.Stdout))
-	}
-
 	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{
 		ForceQuote:      true,                  //键值对加引号
@@ -74,6 +51,16 @@ func init() {
 	if err != nil {
 		fmt.Println(err)
 		return
+	}
+		// TODO read config file to set log default output
+
+	// set log output to file and console
+	file, err := os.OpenFile(logPath+logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		logrus.Warning("Failed to log to file, using default stderr")
+	} else {
+		logrus.SetOutput(io.MultiWriter(file, os.Stdout))
+		hlog.SetOutput(io.MultiWriter(file, os.Stdout))
 	}
 	logrus.Infof("logrus init success")
 	hlog.Infof("hlog init success")

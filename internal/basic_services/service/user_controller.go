@@ -30,5 +30,4 @@ func GetUserInfo(ctx context.Context, c *app.RequestContext) {
 		Response: utils.Response{StatusCode: 200, StatusMsg: "success"},
 		User:     *user,
 	})
-	return
 }
