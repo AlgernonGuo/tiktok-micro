@@ -42,7 +42,7 @@ func RegisterGroupRoute(h *server.Hertz) {
 	// the service that need authentication
 	withAuth := h.Group("/douyin", mw.JwtMiddleware.MiddlewareFunc())
 	{
-		user := withAuth.Group("/user/")
+		user := withAuth.Group("/user")
 		{
 			user.GET("/", service.GetUserInfo)
 		}

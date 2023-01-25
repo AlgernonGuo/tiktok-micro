@@ -49,6 +49,11 @@ func InitJwt() {
 			// I set the value to int64 type in the PayloadFunc function
 			// But when I get the value here, it becomes a float64 type, I will check the source code later
 			// After the conversion process there are no problems at the moment
+			if claims[IdentityKey] == nil {
+				hlog.CtxErrorf(ctx, "claims[IdentityKey] is nil")
+				return int64(0)
+			}
+			hlog.Debugf("claims[IdentityKey] = %+v", int64(claims[IdentityKey].(float64)))
 			return int64(claims[IdentityKey].(float64))
 		},
 		PayloadFunc: func(data interface{}) jwt.MapClaims {

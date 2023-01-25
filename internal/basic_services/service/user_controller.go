@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/AlgernonGuo/tiktok-micro/internal/basic_services/biz"
 	"github.com/AlgernonGuo/tiktok-micro/internal/basic_services/data"
@@ -16,10 +17,20 @@ type UserResponse struct {
 }
 
 func GetUserInfo(ctx context.Context, c *app.RequestContext) {
+	// get targetUserId from query
+	targetUserIdStr := c.Query("user_id")
+	// string to int64
+	targetUserId, err := strconv.ParseInt(targetUserIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusOK, UserResponse{
+			Response: utils.Response{StatusCode: 400, StatusMsg: "failed"},
+		})
+		return
+	}
 	// get user id from context
 	userId := c.GetInt64("identity")
 	// get user info from db (already hide password)
-	user, err := biz.NewUserService().GetUserById(userId)
+	user, err := biz.NewUserService().GetUserById(targetUserId, userId)
 	if err != nil {
 		c.JSON(http.StatusOK, UserResponse{
 			Response: utils.Response{StatusCode: 400, StatusMsg: "failed"},
