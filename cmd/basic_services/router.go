@@ -37,6 +37,7 @@ func RegisterGroupRoute(h *server.Hertz) {
 			})
 			login.POST("/login/", mw.JwtMiddleware.LoginHandler)
 		}
+		noAuth.GET("/feed/", service.GetFeed)
 	}
 
 	// the service that need authentication
