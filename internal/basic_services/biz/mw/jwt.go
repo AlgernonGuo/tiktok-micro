@@ -32,7 +32,7 @@ func InitJwt() {
 		Key:           []byte("secret key"),
 		Timeout:       time.Hour * 24 * 15, // 15 days
 		MaxRefresh:    time.Hour * 24 * 15, // token can be refreshed for 15 days
-		TokenLookup:   "param: token, query: token",
+		TokenLookup:   "form: token, query: token, param: token",
 		TokenHeadName: "Bearer",
 		LoginResponse: func(ctx context.Context, c *app.RequestContext, code int, token string, expire time.Time) {
 			c.JSON(http.StatusOK, UserLoginResponse{
@@ -84,4 +84,13 @@ func InitJwt() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func GetTokenFromForm(c *app.RequestContext) app.HandlerFunc {
+	bytes := c.FormValue("token")
+	if bytes == nil {
+		return JwtMiddleware.MiddlewareFunc()
+	}
+	c.Set("token", string(bytes))
+	return JwtMiddleware.MiddlewareFunc()
 }

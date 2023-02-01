@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/AlgernonGuo/tiktok-micro/internal/pkg/mysql"
+	"github.com/AlgernonGuo/tiktok-micro/internal/pkg/utils"
 )
 
 type Video struct {
@@ -18,7 +19,7 @@ type Video struct {
 	CommentCount  int64     `json:"comment_count,omitempty" gorm:"default:0"`
 	IsFavorite    bool      `json:"is_favorite,omitempty" gorm:"-"`
 	IsDel         bool      `gorm:"softDelete:flag" json:"-"`
-	CreatedAt     time.Time `json:"create_at,omitempty"`
+	CreatedAt     time.Time `json:"create_at,omitempty" gorm:"autoCreateTime"`
 }
 
 func (Video) TableName() string {
@@ -60,4 +61,19 @@ func (v *VideoDao) GetVideoListByUserId(userId int64) ([]*Video, error) {
 		return nil, err
 	}
 	return videos, nil
+}
+
+func (v *VideoDao) SaveVideo(userId int64, title string, name string) {
+	db := mysql.GetDB()
+	if db == nil {
+		return
+	}
+	video := Video{
+		Id:       utils.GenID(),
+		Title:    title,
+		UserId:   userId,
+		PlayUrl:  "http://192.168.1.13:8080/static/" + name + ".mp4",
+		CoverUrl: "http://192.168.1.13:8080/static/" + name + ".jpg",
+	}
+	db.Model(&video).Create(&video)
 }

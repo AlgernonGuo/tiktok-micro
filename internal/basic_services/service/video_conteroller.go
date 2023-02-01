@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -83,4 +84,33 @@ func GetPublishVideoList(ctx context.Context, c *app.RequestContext) {
 		Response: utils.Response{StatusCode: 0},
 		Feed:     videoList,
 	})
+}
+
+// upload video
+func UploadVideo(ctx context.Context, c *app.RequestContext) {
+	userId := c.GetInt64("identity")
+	// get video title from body form
+	title := c.FormValue("title")
+	file, err := c.FormFile("data")
+	if err != nil {
+		logrus.WithField("user_id", userId).Warnf("UploadVideo failed, err: %v", err)
+		c.JSON(http.StatusOK, utils.Response{
+			StatusCode: 400, StatusMsg: "failed",
+		})
+		return
+	}
+
+	// file name is user id + random string + .mp4
+	// user id 前5位 + 随机字符串 + .mp4
+	fileName := strconv.FormatInt(userId%1000, 10) + utils.GetRandomString(5)
+	// write to file
+	err = c.SaveUploadedFile(file, filepath.Join("./web/static/", fileName+".mp4"))
+	if err != nil {
+		logrus.WithField("user_id", userId).Warnf("UploadVideo failed, err: %v", err)
+		c.JSON(http.StatusOK, utils.Response{
+			StatusCode: 400, StatusMsg: "failed",
+		})
+		return
+	}
+	biz.NewVideoService().UploadVideo(userId, string(title), fileName)
 }

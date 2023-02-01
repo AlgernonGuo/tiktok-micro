@@ -13,7 +13,7 @@ import (
 
 func InitRegister(h *server.Hertz) {
 	//h.StaticFS("/static", &app.FS{Root: "./", GenerateIndexPages: true})
-	h.Static("/static", "./web/static")
+	h.Static("/static", "./web")
 	RegisterGroupRoute(h)
 }
 
@@ -38,6 +38,7 @@ func RegisterGroupRoute(h *server.Hertz) {
 			login.POST("/login/", mw.JwtMiddleware.LoginHandler)
 		}
 		noAuth.GET("/feed/", service.GetFeed)
+		//noAuth.POST("/publish/action/", service.UploadVideo)
 	}
 
 	// the service that need authentication
@@ -50,6 +51,7 @@ func RegisterGroupRoute(h *server.Hertz) {
 		publish := withAuth.Group("/publish")
 		{
 			publish.GET("/list/", service.GetPublishVideoList)
+			publish.POST("/action/", service.UploadVideo)
 		}
 	}
 }

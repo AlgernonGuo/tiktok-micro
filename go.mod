@@ -34,7 +34,7 @@ require (
 require (
 	github.com/cloudwego/hertz v0.5.1
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
-	github.com/hertz-contrib/jwt v1.0.1
+	github.com/hertz-contrib/jwt v1.0.2
 	github.com/hertz-contrib/logger/logrus v1.0.0
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect

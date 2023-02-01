@@ -12,6 +12,7 @@ type VideoService interface {
 	GetFeed(latestTime time.Time) ([]*data.Video, time.Time, error)
 	// GetVideoListByUserId returns the video list of the user.
 	GetVideoListByUserId(userId int64) ([]*data.Video, error)
+	UploadVideo(userId int64, title string, fileName string)
 }
 
 // NewVideoService returns a new VideoService.
@@ -41,4 +42,9 @@ func (s *videoService) GetFeed(latestTime time.Time) ([]*data.Video, time.Time, 
 // GetVideoListByUserId Get video publish list by user id
 func (s *videoService) GetVideoListByUserId(userId int64) ([]*data.Video, error) {
 	return s.videoDao.GetVideoListByUserId(userId)
+}
+
+// UploadVideo Upload video
+func (s *videoService) UploadVideo(userId int64, title string, fileName string) {
+	s.videoDao.SaveVideo(userId, title, fileName)
 }

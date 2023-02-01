@@ -33,6 +33,8 @@ github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8 h1:yE9ULgp02BhY
 github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8/go.mod h1:Nhe/DM3671a5udlv2AdV2ni/MZzgfv2qrPL5nIi3EGQ=
 github.com/hertz-contrib/jwt v1.0.1 h1:oULbGKp6M1NPNoSbNArAyWxjJyLkeDAg3d6eTbNCwEo=
 github.com/hertz-contrib/jwt v1.0.1/go.mod h1:3zUSK+44dcw/9z/89JZ+mA0FoyhmVN7Hx+f46ucVV4I=
+github.com/hertz-contrib/jwt v1.0.2 h1:sAW3wqgBDsbPKr5JWJRObY61jg1NqYkUCg+o8UXLsaI=
+github.com/hertz-contrib/jwt v1.0.2/go.mod h1:3zUSK+44dcw/9z/89JZ+mA0FoyhmVN7Hx+f46ucVV4I=
 github.com/hertz-contrib/logger/logrus v1.0.0 h1:OeyYIGtMcn38W5e6XilogTVRIJVHbbcNC9Uk/mRHpgU=
 github.com/hertz-contrib/logger/logrus v1.0.0/go.mod h1:SqDYLwVq5hTItYqimgZQbFCYPOIGNvBTq0Ip2OQwMcY=
 github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=

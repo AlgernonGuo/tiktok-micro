@@ -19,3 +19,6 @@
 .vscode/
 .idea/
 go.work
+
+# media files for test
+*.mp4
