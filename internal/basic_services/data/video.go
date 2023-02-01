@@ -47,3 +47,17 @@ func (v *VideoDao) GetFeed(latestTime time.Time) ([]*Video, error) {
 	}
 	return videos, nil
 }
+
+// GetVideoByUserId
+func (v *VideoDao) GetVideoListByUserId(userId int64) ([]*Video, error) {
+	db := mysql.GetDB()
+	if db == nil {
+		return nil, errors.New("db is nil")
+	}
+	var videos []*Video
+	err := db.Model(&Video{}).Preload("Author").Where("user_id = ?", userId).Order("id desc").Find(&videos).Error
+	if err != nil {
+		return nil, err
+	}
+	return videos, nil
+}

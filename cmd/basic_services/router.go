@@ -47,5 +47,9 @@ func RegisterGroupRoute(h *server.Hertz) {
 		{
 			user.GET("/", service.GetUserInfo)
 		}
+		publish := withAuth.Group("/publish")
+		{
+			publish.GET("/list/", service.GetPublishVideoList)
+		}
 	}
 }
