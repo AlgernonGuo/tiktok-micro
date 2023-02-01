@@ -13,8 +13,8 @@ func NewLoginService() *LoginService {
 	return &LoginService{userDao: data.NewUserDao()}
 }
 
-func (*LoginService) Login(username, password string) (user *data.User, err error) {
-	user, err = data.NewUserDao().GetUserByNameAndPassword(username, password)
+func (s *LoginService) Login(username, password string) (user *data.User, err error) {
+	user, err = s.userDao.GetUserByNameAndPassword(username, password)
 	if err != nil {
 		log.WithField("username", username).Errorf("GetUserByName failed, err: %v", err)
 		return nil, err
@@ -22,8 +22,8 @@ func (*LoginService) Login(username, password string) (user *data.User, err erro
 	return user, nil
 }
 
-func (*LoginService) Register(user *data.User) error {
-	err := data.NewUserDao().CreateUser(user)
+func (s *LoginService) Register(user *data.User) error {
+	err := s.userDao.CreateUser(user)
 	if err != nil {
 		log.WithField("username", user.Name).Warnf("CreateUser failed, err: %v", err)
 		return err

@@ -6,26 +6,28 @@ import (
 )
 
 type UserService struct {
+	userDao   *data.UserDao
+	followDao *data.FollowDao
 }
 
 func NewUserService() *UserService {
 	return &UserService{}
 }
 
-func (*UserService) GetUserById(targetUserId, myId int64) (user *data.User, err error) {
-	user, err = data.NewUserDao().GetUserById(targetUserId)
+func (s *UserService) GetUserById(targetUserId, myId int64) (user *data.User, err error) {
+	user, err = s.userDao.GetUserById(targetUserId)
 	if err != nil {
 		logrus.WithField("targetUserId", targetUserId).Errorf("GetUserByName failed, err: %v", err)
 		return nil, err
 	}
 	// hide password to make sure security
 	user.Password = ""
-	user.FollowCount, err = data.NewFollowDao().GetFollowCountByUserId(targetUserId)
+	user.FollowCount, err = s.followDao.GetFollowCountByUserId(targetUserId)
 	if err != nil {
 		logrus.WithField("targetUserId", targetUserId).Errorf("GetFollowCountByUserId failed, err: %v", err)
 		return nil, err
 	}
-	user.FollowerCount, err = data.NewFollowDao().GetFollowerCountByFollowId(targetUserId)
+	user.FollowerCount, err = s.followDao.GetFollowerCountByFollowId(targetUserId)
 	if err != nil {
 		logrus.WithField("targetUserId", targetUserId).Errorf("GetFollowerCountByFollowId failed, err: %v", err)
 		return nil, err
@@ -34,7 +36,7 @@ func (*UserService) GetUserById(targetUserId, myId int64) (user *data.User, err 
 		user.IsFollow = true
 		return user, nil
 	}
-	followInfo, err := data.NewFollowDao().GetFollowByUserIdAndFollowId(myId, targetUserId)
+	followInfo, err := s.followDao.GetFollowByUserIdAndFollowId(myId, targetUserId)
 	if err != nil {
 		logrus.WithField("targetUserId", targetUserId).WithField("userId", myId).Errorf("GetFollowByUserIdAndFollowId failed, err: %v", err)
 		return nil, err

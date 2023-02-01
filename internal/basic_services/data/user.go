@@ -15,8 +15,8 @@ type User struct {
 	Id            int64        `json:"id,omitempty"`
 	Name          string       `json:"name,omitempty"`
 	Password      string       `json:"password,omitempty"`
-	FollowCount   int64        `json:"follow_count" ;gorm:"default:0"`
-	FollowerCount int64        `json:"follower_count" ;gorm:"default:0"`
+	FollowCount   int64        `json:"follow_count" gorm:"default:0"`
+	FollowerCount int64        `json:"follower_count" gorm:"default:0"`
 	CreatedAt     time.Time    `json:"-"`
 	IsFollow      bool         `json:"is_follow" gorm:"-"`
 	isDel         sd.DeletedAt `gorm:"softDelete:flag"`
