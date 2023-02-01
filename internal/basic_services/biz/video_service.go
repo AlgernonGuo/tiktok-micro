@@ -26,9 +26,10 @@ func (s *videoService) GetFeed(latestTime time.Time) ([]*data.Video, time.Time, 
 	if err != nil {
 		return nil, time.Time{}, err
 	}
+	// get now sec
+	nextTime := time.Now()
 	// get the latest time of the feed
 	// the last one is the latest
-	var nextTime time.Time
 	if len(feed) > 0 {
 		nextTime = feed[len(feed)-1].CreatedAt
 	}
