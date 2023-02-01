@@ -38,7 +38,7 @@ func GetUserInfo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	c.JSON(http.StatusOK, UserResponse{
-		Response: utils.Response{StatusCode: 200, StatusMsg: "success"},
+		Response: utils.Response{StatusCode: 0, StatusMsg: "success"},
 		User:     *user,
 	})
 }
