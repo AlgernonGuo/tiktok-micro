@@ -22,3 +22,7 @@ go.work
 
 # media files for test
 *.mp4
+*.jpg
+
+# env file
+*.env

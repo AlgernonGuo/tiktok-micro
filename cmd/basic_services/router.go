@@ -13,7 +13,7 @@ import (
 
 func InitRegister(h *server.Hertz) {
 	//h.StaticFS("/static", &app.FS{Root: "./", GenerateIndexPages: true})
-	h.Static("/static", "./web")
+	h.Static("/static", "../../web")
 	RegisterGroupRoute(h)
 }
 

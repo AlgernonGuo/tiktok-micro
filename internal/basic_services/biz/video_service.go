@@ -1,9 +1,12 @@
 package biz
 
 import (
+	"context"
+	"mime/multipart"
 	"time"
 
 	"github.com/AlgernonGuo/tiktok-micro/internal/basic_services/data"
+	"github.com/AlgernonGuo/tiktok-micro/internal/pkg/utils"
 )
 
 // VideoService is the interface of video service.
@@ -12,7 +15,7 @@ type VideoService interface {
 	GetFeed(latestTime time.Time) ([]*data.Video, time.Time, error)
 	// GetVideoListByUserId returns the video list of the user.
 	GetVideoListByUserId(userId int64) ([]*data.Video, error)
-	UploadVideo(userId int64, title string, fileName string)
+	UploadVideo(ctx context.Context, userId int64, title string, fileName string, file *multipart.FileHeader) error
 }
 
 // NewVideoService returns a new VideoService.
@@ -45,6 +48,18 @@ func (s *videoService) GetVideoListByUserId(userId int64) ([]*data.Video, error)
 }
 
 // UploadVideo Upload video
-func (s *videoService) UploadVideo(userId int64, title string, fileName string) {
+func (s *videoService) UploadVideo(ctx context.Context, userId int64, title string, fileName string, file *multipart.FileHeader) error {
+	// *multipart.FileHeader to io.Reader
+	fileReader, err := file.Open()
+	if err != nil {
+		return err
+	}
+	// upload to oss
+	err = utils.NewTencentCos().UploadFile(ctx, "video/"+fileName+".mp4", fileReader)
+	if err != nil {
+		return err
+	}
+	// save to db
 	s.videoDao.SaveVideo(userId, title, fileName)
+	return nil
 }

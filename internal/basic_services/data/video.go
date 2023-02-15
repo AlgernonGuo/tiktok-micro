@@ -72,8 +72,8 @@ func (v *VideoDao) SaveVideo(userId int64, title string, name string) {
 		Id:       utils.GenID(),
 		Title:    title,
 		UserId:   userId,
-		PlayUrl:  "http://192.168.1.13:8080/static/" + name + ".mp4",
-		CoverUrl: "http://192.168.1.13:8080/static/" + name + ".jpg",
+		PlayUrl:  utils.TencentCosURL + "/video/" + name + ".mp4",
+		CoverUrl: utils.TencentCosURL + "/cover/" + name + ".jpg",
 	}
 	db.Model(&video).Create(&video)
 }

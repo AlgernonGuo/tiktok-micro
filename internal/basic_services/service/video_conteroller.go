@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"net/http"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -93,24 +92,34 @@ func UploadVideo(ctx context.Context, c *app.RequestContext) {
 	title := c.FormValue("title")
 	file, err := c.FormFile("data")
 	if err != nil {
-		logrus.WithField("user_id", userId).Warnf("UploadVideo failed, err: %v", err)
+		logrus.WithField("user_id", userId).Errorf("UploadVideo failed, err: %v", err)
 		c.JSON(http.StatusOK, utils.Response{
 			StatusCode: 400, StatusMsg: "failed",
 		})
 		return
 	}
 
-	// file name is user id + random string + .mp4
-	// user id 前5位 + 随机字符串 + .mp4
+	// file name is user id + random string
+	// user id 前5位 + 随机字符串
 	fileName := strconv.FormatInt(userId%1000, 10) + utils.GetRandomString(5)
-	// write to file
-	err = c.SaveUploadedFile(file, filepath.Join("./web/static/", fileName+".mp4"))
+	err = biz.NewVideoService().UploadVideo(ctx, userId, string(title), fileName, file)
 	if err != nil {
-		logrus.WithField("user_id", userId).Warnf("UploadVideo failed, err: %v", err)
+		logrus.WithField("user_id", userId).Errorf("UploadVideo failed, err: %v", err)
 		c.JSON(http.StatusOK, utils.Response{
 			StatusCode: 400, StatusMsg: "failed",
 		})
 		return
 	}
-	biz.NewVideoService().UploadVideo(userId, string(title), fileName)
+	videoList, err := biz.NewVideoService().GetVideoListByUserId(userId)
+	if err != nil {
+		logrus.WithField("user_id", userId).Errorf("GetVideoListByUserId failed, err: %v", err)
+		c.JSON(http.StatusOK, utils.Response{
+			StatusCode: 400, StatusMsg: "server error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, FeedResponse{
+		Response: utils.Response{StatusCode: 0},
+		Feed:     videoList,
+	})
 }
